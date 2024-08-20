@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table {{ table.name }} Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #1a73e8;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Details for Table: {{ table.name }}</h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Column Name</th>
+                    <th>Data Type</th>
+                    <th>Is Nullable</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for column in table.columns %}
+                    <tr>
+                        <td>{{ column.name }}</td>
+                        <td>{{ column.data_type }}</td>
+                        <td>{{ 'Yes' if column.is_nullable else 'No' }}</td>
+
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/databases/{{ database.id }}" class="back-btn">Back to Tables</a>
+        <a href="/tables/{{ database.id }}/{{table.id}}/insert" class="back-btn">Insert</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        .columns {
+            margin-top: 20px;
+        }
+        .column {
+            margin-bottom: 10px;
+        }
+        .add-column-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .remove-column-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create a New Table</h1>
+        <form id="create-table-form" method="POST" action="/tables/">
+            <input type="hidden" name="database_id" value="{{ database_id }}">
+
+            <label for="table-name">Table Name:</label>
+            <input type="text" id="table-name" name="name" required>
+
+            <div class="columns" id="columns">
+                <h2>Columns</h2>
+                <div class="column">
+                    <label for="column-name-1">Column 1 Name:</label>
+                    <input type="text" id="column-name-1" name="column_names" required>
+                    <label for="column-type-1">Column 1 Type:</label>
+                    <select id="column-type-1" name="column_types" required>
+                        <option value="INTEGER">INTEGER</option>
+                        <option value="VARCHAR">VARCHAR</option>
+                        <option value="TEXT">TEXT</option>
+                        <option value="BOOLEAN">BOOLEAN</option>
+                        <option value="DATE">DATE</option>
+                        <option value="FLOAT">FLOAT</option>
+                    </select>
+                </div>
+            </div>
+            <button type="button" class="add-column-btn" onclick="addColumn()">Add Column</button>
+            <button type="submit">Create Table</button>
+        </form>
+    </div>
+
+    <script>
+        let columnCount = 1;
+
+        function addColumn() {
+            columnCount++;
+            const columnsDiv = document.getElementById('columns');
+
+            const newColumnDiv = document.createElement('div');
+            newColumnDiv.classList.add('column');
+
+            const columnNameLabel = document.createElement('label');
+            columnNameLabel.setAttribute('for', `column-name-${columnCount}`);
+            columnNameLabel.textContent = `Column ${columnCount} Name:`;
+
+            const columnNameInput = document.createElement('input');
+            columnNameInput.setAttribute('type', 'text');
+            columnNameInput.setAttribute('id', `column-name-${columnCount}`);
+            columnNameInput.setAttribute('name', 'column_names');
+            columnNameInput.required = true;
+
+            const columnTypeLabel = document.createElement('label');
+            columnTypeLabel.setAttribute('for', `column-type-${columnCount}`);
+            columnTypeLabel.textContent = `Column ${columnCount} Type:`;
+
+            const columnTypeSelect = document.createElement('select');
+            columnTypeSelect.setAttribute('id', `column-type-${columnCount}`);
+            columnTypeSelect.setAttribute('name', 'column_types');
+            columnTypeSelect.required = true;
+
+            const types = ['INTEGER', 'VARCHAR', 'TEXT', 'BOOLEAN', 'DATE', 'FLOAT'];
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.setAttribute('value', type);
+                option.textContent = type;
+                columnTypeSelect.appendChild(option);
+            });
+
+            const removeButton = document.createElement('button');
+            removeButton.setAttribute('type', 'button');
+            removeButton.classList.add('remove-column-btn');
+            removeButton.textContent = 'Remove';
+            removeButton.onclick = function() {
+                columnsDiv.removeChild(newColumnDiv);
+            };
+
+            newColumnDiv.appendChild(columnNameLabel);
+            newColumnDiv.appendChild(columnNameInput);
+            newColumnDiv.appendChild(columnTypeLabel);
+            newColumnDiv.appendChild(columnTypeSelect);
+            newColumnDiv.appendChild(removeButton);
+
+            columnsDiv.appendChild(newColumnDiv);
+        }
+    </script>
+</body>
+</html>

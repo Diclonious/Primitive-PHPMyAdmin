@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert Row into {{ table.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Insert Row into {{ table.name }}</h1>
+        <form id="insert-row-form" method="POST" action="/tables/{{ database.id }}/{{ table.id }}/insert">
+            <input type="hidden" name="database_id" value="{{ database.id }}">
+            <input type="hidden" name="table_id" value="{{ table.id }}">
+
+            {% for column in table.columns %}
+                <div class="form-group">
+                    <label for="column-{{ column.id }}">{{ column.name }}:</label>
+                    {% if column.data_type == 'INTEGER' or column.data_type == 'FLOAT' %}
+                        <input type="number" id="column-{{ column.id }}" name="column_{{ column.id }}" step="any" required>
+                    {% elif column.data_type == 'BOOLEAN' %}
+                        <select id="column-{{ column.id }}" name="column_{{ column.id }}" required>
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                        </select>
+                    {% elif column.data_type == 'DATE' %}
+                        <input type="date" id="column-{{ column.id }}" name="column_{{ column.id }}" required>
+                    {% elif column.data_type == 'VARCHAR' or column.data_type == 'TEXT' %}
+                        <input type="text" id="column-{{ column.id }}" name="column_{{ column.id }}" required>
+                    {% else %}
+                        <input type="text" id="column-{{ column.id }}" name="column_{{ column.id }}" required>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <a href="/databases/{{ database.id }}" class="create-db-button">Insert Row</a>
+        </form>
+    </div>
+</body>
+</html>
