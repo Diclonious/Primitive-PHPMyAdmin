@@ -1,51 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Table {{ table.name }} Details</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        .back-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #1a73e8;
-            color: white;
-            text-align: center;
-            border-radius: 5px;
-            margin-top: 10px;
-            text-decoration: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Details for Table: {{ table.name }}</h1>
 
-        <table>
+<html lang="en">
+{% extends "base.html" %}
+<body>
+{% block content %}
+    <div>
+        <h1>Details for Table: {{ table.name }}</h1>
+<input type="hidden" name="database_id" value="{{ database.id }}">
+        <input type="hidden" name="table_id" value="{{ table.id }}">
+
+        <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Column Name</th>
@@ -57,17 +20,29 @@
             <tbody>
                 {% for column in table.columns %}
                     <tr>
-                        <td>{{ column.name }}</td>
+                        <td>{{ column.name }}
+                        {% if column.is_primary_key %}
+                                <i class="fas fa-key" title="Primary Key"></i>
+                            {% endif %}</td>
                         <td>{{ column.data_type }}</td>
                         <td>{{ 'Yes' if column.is_nullable else 'No' }}</td>
-
+<td>
+                            <form action="/tables/{{ table.id }}/columns/{{ column.id }}/drop" method="post" style="display:inline;">
+                                <input type="hidden" name="database_id" value="{{ database.id }}">
+                                <input type="hidden" name="table_id" value="{{ table.id }}">
+                                <input type="hidden" name="column_id" value="{{ column.id }}">
+                                <button type="submit" style="background-color: red; padding: 8px 16px; color: white; border: none; border-radius: 4px; cursor: pointer;">Drop</button>
+                            </form>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <a href="/databases/{{ database.id }}" class="back-btn">Back to Tables</a>
-        <a href="/tables/{{ database.id }}/{{table.id}}/insert" class="back-btn">Insert</a>
+        <a href="/databases/{{ database.id }}" class="btn btn-secondary">Back to Tables</a>
+        <a href="/tables/{{ database.id }}/{{table.id}}/insert" class="btn btn-success">Insert Data</a>
+        <a href="/tables/{{database.id}}/{{table.id}}/viewdata" class="btn btn-info">View Data</a>
     </div>
+{% endblock %}
 </body>
 </html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "base.html" %}
+<body>
+{% block content %}
+    <div>
+        <div class="main-content">
+            <h1>Execute SQL Query</h1>
+            <form action="/sql" method="POST" class="sql-form">
+                <label for="sql-query">SQL Query:</label>
+                <textarea id="sql-query" name="sql_query" placeholder="Enter your SQL query here...">{{ sql_query }}</textarea>
+                <button class="btn btn-success" type="submit">Execute Query</button>
+            </form>
+
+            {% if error_message %}
+                <div class="error">
+                    <h2>Error:</h2>
+                    <p>{{ error_message }}</p>
+                </div>
+            {% endif %}
+
+            {% if results %}
+                <div class="results">
+                    <h2>Results:</h2>
+                    <ul>
+                        {% for result in results %}
+                            <li>{{ result }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                {% if not error_message %}
+                    <p>No results found.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+</body>
+</html>

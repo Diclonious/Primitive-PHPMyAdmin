@@ -1,74 +1,39 @@
-<!DOCTYPE html>
+
 <html lang="en">
 {% extends "base.html" %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Details</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        .database-info, .tables-info {
-            margin-bottom: 20px;
-        }
-        .tables-info ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .tables-info li {
-            margin-bottom: 10px;
-        }
-        .back-button {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .back-button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
+
 <body>
 {% block content %}
-    <div class="container">
-        <a href="/" class="back-button">Back to Home</a>
+    <div>
+        <a href="/" class="btn btn-secondary">Back to Home</a>
         <div class="database-info">
             <h1>Database: {{ database.name }}</h1>
         </div>
         <div class="tables-info">
             <h2>Tables</h2>
-            <ul>
+            <ul class="list-group list-group-flush">
                 {% if tables %}
                     {% for table in tables %}
-                    <li>
+                    <li class="list-group-item">
                         <strong>{{ table.name }}</strong>
-                        <form action="/tables/{{database.id}}/{{table.id}}/delete" method="post" style="display: inline;">
-    <button type="submit" class="danger">Delete</button>
-</form>
-
-                        <a href="/tables/{{database.id}}/{{table.id}}" class="danger">View</a>
+                        <div>
+                            <form action="/tables/{{database.id}}/{{table.id}}/delete" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                            <a href="/tables/{{database.id}}/{{table.id}}" class="btn btn-info">View</a>
+                        </div>
                     </li>
                     {% endfor %}
                 {% else %}
-                    <li>No tables found in this database.</li>
+                    <li class="list-group-item">No tables found in this database.</li>
                 {% endif %}
             </ul>
         </div>
-      <a href="/tables/create/{{database.id}}" class="back-button">Create a table</a>
-
+        <a href="/tables/create/{{database.id}}" class="btn btn-success">Create a table</a>
+        <form action="/databases/{{database.id}}/delete" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-danger">Delete Database</button>
+                            </form>
+        <a href="/sql" class="btn btn-primary">SQL</a>
     </div>
 {% endblock %}
 </body>

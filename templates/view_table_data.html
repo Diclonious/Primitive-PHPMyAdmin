@@ -1,0 +1,48 @@
+<html lang="en">
+{% extends "base.html" %}
+<body>
+{% block content %}
+    <div>
+        <h1>Details for Table: {{ table.name }}</h1>
+        <input type="hidden" name="database_id" value="{{ database.id }}">
+        <input type="hidden" name="table_id" value="{{ table.id }}">
+
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    {% for column in columns %}
+                        <th scope="col">{{ column.name }}</th>
+                    {% endfor %}
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        {% for column in columns %}
+                            <td>{{ row.data[column.name] if column.name in row.data else '' }}</td>
+                        {% endfor %}
+                        <td class="thead-dark">
+                            <!-- Form for dropping the row -->
+                            <form action="/tables/{{ table.id }}/rows/{{ row.id }}/drop" method="post" style="display:inline;">
+                                <input type="hidden" name="database_id" value="{{ database.id }}">
+                                <input type="hidden" name="table_id" value="{{ table.id }}">
+                                <input type="hidden" name="row_id" value="{{ row.id }}">
+
+                                <button type="submit" class="btn btn-danger">Drop</button>
+                            </form>
+
+                            <!-- Edit Button -->
+                            <a href="/tables/{{database.id}}/{{table.id}}/rows/{{row.id}}/edit" class="btn btn-secondary">Edit</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/databases/{{ database.id }}" class="btn btn-secondary">Back to Tables</a>
+        <a href="/tables/{{database.id}}/{{table.id}}/insert" class="btn btn-success">Insert Row</a>
+    </div>
+{% endblock %}
+</body>
+</html>

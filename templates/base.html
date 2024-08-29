@@ -5,37 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My Application{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
+
+        /* Container for background image and overlay */
+        .background-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/static/images/logo.png'); /* Path to your background image */
+            background-size: cover;
+            background-position: center;
+            z-index: -1; /* Place behind the content */
+        }
+
+        /* Semi-transparent overlay */
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Adjust transparency (0.5 = 50%) */
+            z-index: -1; /* Ensure it is behind the content but above the background image */
+        }
+
         .navbar {
             background-color: #333;
             overflow: hidden;
             color: #fff;
             padding: 10px;
             display: flex;
-            align-items: center; /* Align items vertically centered */
+            align-items: center;
         }
+
         .navbar img {
-            height: 40px; /* Adjust the size of the image */
-            margin-right: 20px; /* Space between the image and the links */
+            height: 40px;
+            margin-right: 20px;
         }
+
         .navbar a {
             color: #fff;
             padding: 14px 20px;
             text-decoration: none;
             display: inline-block;
         }
+
         .navbar a:hover {
             background-color: #ddd;
             color: black;
         }
+
         .container {
             display: flex;
         }
+
         .sidebar {
             width: 250px;
             background-color: #333;
@@ -45,9 +77,11 @@
             box-sizing: border-box;
             float: left;
         }
+
         .sidebar h2 {
             margin-top: 0;
         }
+
         .create-db-button {
             display: block;
             width: 100%;
@@ -59,10 +93,12 @@
             margin-bottom: 20px;
             border-radius: 4px;
         }
+
         .databases-list {
             list-style-type: none;
             padding: 0;
         }
+
         .databases-list li {
             padding: 10px;
             margin: 5px 0;
@@ -70,31 +106,36 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
         .databases-list li:hover {
             background-color: #555;
         }
+
         .main-content {
             flex-grow: 1;
             padding: 20px;
-            background-color: #f4f4f4;
-            margin-left: 250px; /* Leave space for the sidebar */
+            background-color: rgba(255, 255, 255, 0.8); /* Optional: Add a semi-transparent white background for contrast */
+            margin-left: 250px;
         }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <img src="static/images/logo.png" alt="Logo"> <!-- Add your logo here -->
-        <a href="/">Home</a>
-        <a href="/databases">Databases</a>
-        <a href="/tables">Tables</a>
-        <a href="/about">About</a>
-        <!-- Add more links as needed -->
+    <!-- Background image and overlay -->
+    <div class="background-image"></div>
+
     </div>
 
-    <div class="container">
+    <div class="navbar">
+        <img src="/static/images/logo.png" alt="Logo">
+        <a href="/">Home</a>
+        <a href="/databases/all">Databases</a>
+        <a href="/sql">SQL</a>
+        <!-- Add more links as needed -->
+    </div>
+<div>
         {% block content %}
-        <!-- Main content will be injected here -->
         {% endblock %}
     </div>
+
 </body>
 </html>

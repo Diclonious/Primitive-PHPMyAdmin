@@ -1,0 +1,30 @@
+
+<html lang="en">
+{% extends "base.html" %}
+
+<body>
+{% block content %}
+    <div>
+        <h1>Edit Row for Table: {{ table.name }}</h1>
+        <form action="/tables/{{ table.id }}/rows/{{ row.id }}/update" method="post" class="form-horizontal">
+            <input type="hidden" name="database_id" value="{{ database.id }}">
+            <input type="hidden" name="table_id" value="{{ table.id }}">
+            <input type="hidden" name="row_id" value="{{ row.id }}">
+
+            {% for column in columns %}
+                <div class="form-group">
+                    <label for="column-{{ column.id }}">{{ column.name }} ({{ column.data_type }}):</label>
+                    <input type="text" id="column-{{ column.id }}" name="column-{{ column.id }}"
+                           value="{{ row.data[column.name] if column.name in row.data else '' }}">
+                </div>
+            {% endfor %}
+
+            <button type="submit"  class="btn btn-success">Update Row</button>
+        </form>
+
+        <a href="/tables/{{ database.id }}/{{ table.id }}/viewdata" class="btn btn-secondary">Back to Table Data</a>
+    </div>
+{% endblock %}
+</body>
+
+</html>

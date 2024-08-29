@@ -1,64 +1,6 @@
-<!DOCTYPE html>
 <html lang="en">
- {% extends "base.html" %}
+{% extends "base.html" %}
 
-
-
-<head>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Management</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-        .sidebar {
-            width: 250px;
-            background-color: #333;
-            color: white;
-            height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .sidebar h2 {
-            margin-top: 0;
-        }
-        .create-db-button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        .databases-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .databases-list li {
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #444;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .databases-list li:hover {
-            background-color: #555;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-    </style>
-</head>
 <body>
 {% block content %}
     <div class="sidebar">

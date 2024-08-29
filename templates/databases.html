@@ -1,0 +1,27 @@
+
+<html lang="en">
+{% extends "base.html" %}
+
+<body>
+{% block content %}
+    <div>
+        <h1>Database Management</h1>
+
+        <form class="create-db-form" action="/databases" method="post">
+    <input type="text" name="name" placeholder="Enter new database name" required>
+    <button type="submit" class="btn btn-success">Create Database</button>
+</form>
+       <ul class="list-group">
+            {% for database in databases %}
+            <li class="list-group-item" style="display: flex; align-items: center; justify-content: space-between;">
+                <a href="/databases/{{ database.id }}">{{ database.name }}</a>
+                <form action="/databases/{{ database.id }}/delete" method="post" style="margin: 0;">
+                    <button type="submit" style="background-color: red; padding: 8px 16px; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+</body>
+</html>
