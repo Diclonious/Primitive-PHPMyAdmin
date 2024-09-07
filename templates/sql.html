@@ -5,10 +5,12 @@
 {% block content %}
     <div>
         <div class="main-content">
+            <input type="hidden" name="database_id" value="{{ database_id }}">
             <h1>Execute SQL Query</h1>
-            <form action="/sql" method="POST" class="sql-form">
+            <form action="/sql/{{ database_id }}" method="POST" class="sql-form">
                 <label for="sql-query">SQL Query:</label>
                 <textarea id="sql-query" name="sql_query" placeholder="Enter your SQL query here...">{{ sql_query }}</textarea>
+                <input type="hidden" name="database_id" value="{{ database_id }}">
                 <button class="btn btn-success" type="submit">Execute Query</button>
             </form>
 
@@ -22,11 +24,54 @@
             {% if results %}
                 <div class="results">
                     <h2>Results:</h2>
-                    <ul>
-                        {% for result in results %}
-                            <li>{{ result }}</li>
-                        {% endfor %}
-                    </ul>
+                    {% if results[0].message %}
+                        <h3>{{ results[0].message }}</h3>
+                    {% endif %}
+                    {% if results.Table %}
+                        <h3>Table: {{ results.Table }}</h3>
+                    {% endif %}
+                    {% if results.Columns %}
+                        <h3>Columns:</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Data Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for column in results.Columns %}
+                                    <tr>
+                                        <td>{{ column.id }}</td>
+                                        <td>{{ column.name }}</td>
+                                        <td>{{ column.data_type }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                    {% if results.Rows %}
+                        <h3>Rows:</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    {% for column_name in results.Rows[0].keys() %}
+                                        <th>{{ column_name }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in results.Rows %}
+                                    <tr>
+                                        {% for column in row.values() %}
+                                            <td>{{ column }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
                 </div>
             {% else %}
                 {% if not error_message %}

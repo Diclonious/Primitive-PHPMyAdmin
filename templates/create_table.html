@@ -1,4 +1,3 @@
-
 <html lang="en">
 {% extends "base.html" %}
 
@@ -27,6 +26,14 @@
                         <option value="FLOAT">FLOAT</option>
                     </select>
                     <input type="radio" name="primary_key" value="0"> Primary Key
+                     <div>
+                        <label>Is Nullable:</label>
+                        <input type="radio" id="is_nullable_1_yes" name="is_nullable_1" value="1">
+                        <label for="is_nullable_1_yes">Yes</label>
+                        <input type="radio" id="is_nullable_1_no" name="is_nullable_1" value="0" checked>
+                        <label for="is_nullable_1_no">No</label>
+                    </div>
+
                 </div>
             </div>
             <button type="button" class="btn btn-primary" onclick="addColumn()">Add Column</button>
@@ -34,74 +41,120 @@
         </form>
     </div>
 
-
     <script>
         let columnCount = 1;
 
         function addColumn() {
-    columnCount++;
-    const columnsDiv = document.getElementById('columns');
+            columnCount++;
+            const columnsDiv = document.getElementById('columns');
 
-    const newColumnDiv = document.createElement('div');
-    newColumnDiv.classList.add('column');
+            const newColumnDiv = document.createElement('div');
+            newColumnDiv.classList.add('column');
 
-    const columnNameLabel = document.createElement('label');
-    columnNameLabel.setAttribute('for', `column-name-${columnCount}`);
-    columnNameLabel.textContent = `Column ${columnCount} Name:`;
+            const columnNameLabel = document.createElement('label');
+            columnNameLabel.setAttribute('for', `column-name-${columnCount}`);
+            columnNameLabel.textContent = `Column ${columnCount} Name:`;
 
-    const columnNameInput = document.createElement('input');
-    columnNameInput.setAttribute('type', 'text');
-    columnNameInput.setAttribute('id', `column-name-${columnCount}`);
-    columnNameInput.setAttribute('name', 'column_names');
-    columnNameInput.required = true;
+            const columnNameInput = document.createElement('input');
+            columnNameInput.setAttribute('type', 'text');
+            columnNameInput.setAttribute('id', `column-name-${columnCount}`);
+            columnNameInput.setAttribute('name', 'column_names');
+            columnNameInput.required = true;
 
-    const columnTypeLabel = document.createElement('label');
-    columnTypeLabel.setAttribute('for', `column-type-${columnCount}`);
-    columnTypeLabel.textContent = `Column ${columnCount} Type:`;
+            const columnTypeLabel = document.createElement('label');
+            columnTypeLabel.setAttribute('for', `column-type-${columnCount}`);
+            columnTypeLabel.textContent = `Column ${columnCount} Type:`;
 
-    const columnTypeSelect = document.createElement('select');
-    columnTypeSelect.setAttribute('id', `column-type-${columnCount}`);
-    columnTypeSelect.setAttribute('name', 'column_types');
-    columnTypeSelect.required = true;
+            const columnTypeSelect = document.createElement('select');
+            columnTypeSelect.setAttribute('id', `column-type-${columnCount}`);
+            columnTypeSelect.setAttribute('name', 'column_types');
+            columnTypeSelect.required = true;
 
-    const types = ['INTEGER', 'VARCHAR', 'TEXT', 'BOOLEAN', 'DATE', 'FLOAT'];
-    types.forEach(type => {
-        const option = document.createElement('option');
-        option.setAttribute('value', type);
-        option.textContent = type;
-        columnTypeSelect.appendChild(option);
-    });
+            const types = ['INTEGER', 'VARCHAR', 'TEXT', 'BOOLEAN', 'DATE', 'FLOAT'];
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.setAttribute('value', type);
+                option.textContent = type;
+                columnTypeSelect.appendChild(option);
+            });
 
-    // Primary key radio button
-    const primaryKeyRadio = document.createElement('input');
-    primaryKeyRadio.setAttribute('type', 'radio');
-    primaryKeyRadio.setAttribute('name', 'primary_key');
-    primaryKeyRadio.setAttribute('value', `${columnCount}`);
+            // Primary key radio button
+            const primaryKeyRadio = document.createElement('input');
+            primaryKeyRadio.setAttribute('type', 'radio');
+            primaryKeyRadio.setAttribute('name', 'primary_key');
+            primaryKeyRadio.setAttribute('value', `${columnCount}`);
 
-    const primaryKeyLabel = document.createElement('label');
-    primaryKeyLabel.textContent = ' Primary Key';
+            const primaryKeyLabel = document.createElement('label');
+            primaryKeyLabel.textContent = ' Primary Key';
 
-    const removeButton = document.createElement('button');
-    removeButton.setAttribute('type', 'button');
-    removeButton.classList.add('remove-column-btn');
-    removeButton.textContent = 'Remove';
-    removeButton.onclick = function() {
-        columnsDiv.removeChild(newColumnDiv);
-    };
+           const isNullableDiv = document.createElement('div');
+            const isNullableLabel = document.createElement('label');
+            isNullableLabel.textContent = 'Is Nullable:';
+            isNullableDiv.appendChild(isNullableLabel);
 
-    newColumnDiv.appendChild(columnNameLabel);
-    newColumnDiv.appendChild(columnNameInput);
-    newColumnDiv.appendChild(columnTypeLabel);
-    newColumnDiv.appendChild(columnTypeSelect);
+            const isNullableYes = document.createElement('input');
+            isNullableYes.setAttribute('type', 'radio');
+            isNullableYes.setAttribute('id', `is_nullable_${columnCount}_yes`);
+            isNullableYes.setAttribute('name', `is_nullable_${columnCount}`);
+            isNullableYes.setAttribute('value', '1');
+            isNullableDiv.appendChild(isNullableYes);
 
-    // Append the primary key radio button
-    newColumnDiv.appendChild(primaryKeyRadio);
-    newColumnDiv.appendChild(primaryKeyLabel);
+            const isNullableYesLabel = document.createElement('label');
+            isNullableYesLabel.setAttribute('for', `is_nullable_${columnCount}_yes`);
+            isNullableYesLabel.textContent = 'Yes';
+            isNullableDiv.appendChild(isNullableYesLabel);
 
-    newColumnDiv.appendChild(removeButton);
+            const isNullableNo = document.createElement('input');
+            isNullableNo.setAttribute('type', 'radio');
+            isNullableNo.setAttribute('id', `is_nullable_${columnCount}_no`);
+            isNullableNo.setAttribute('name', `is_nullable_${columnCount}`);
+            isNullableNo.setAttribute('value', '0');
+            isNullableNo.checked = true;
+            isNullableDiv.appendChild(isNullableNo);
 
-    columnsDiv.appendChild(newColumnDiv);
-}
+            const isNullableNoLabel = document.createElement('label');
+            isNullableNoLabel.setAttribute('for', `is_nullable_${columnCount}_no`);
+            isNullableNoLabel.textContent = 'No';
+            isNullableDiv.appendChild(isNullableNoLabel);
+
+            // Is Nullable checkbox
+        //    const isNullableCheckbox = document.createElement('input');
+        // isNullableCheckbox.setAttribute('type', 'checkbox');
+        // isNullableCheckbox.setAttribute('id', `is-nullable-${columnCount}`);
+        // isNullableCheckbox.setAttribute('name', `is-nullable-${columnCount}`);
+        // isNullableCheckbox.setAttribute('value', `1`);
+        //
+        // const isNullableLabel = document.createElement('label');
+        // isNullableLabel.textContent = ' Is Nullable';
+
+            const removeButton = document.createElement('button');
+            removeButton.setAttribute('type', 'button');
+            removeButton.classList.add('remove-column-btn');
+            removeButton.textContent = 'Remove';
+            removeButton.onclick = function() {
+                columnsDiv.removeChild(newColumnDiv);
+            };
+
+            newColumnDiv.appendChild(columnNameLabel);
+            newColumnDiv.appendChild(columnNameInput);
+            newColumnDiv.appendChild(columnTypeLabel);
+            newColumnDiv.appendChild(columnTypeSelect);
+
+            newColumnDiv.appendChild(primaryKeyRadio);
+            newColumnDiv.appendChild(primaryKeyLabel);
+
+            newColumnDiv.appendChild(isNullableDiv);
+
+            // newColumnDiv.appendChild(isNullableCheckbox);
+            // newColumnDiv.appendChild(isNullableLabel);
+
+            newColumnDiv.appendChild(removeButton);
+
+            columnsDiv.appendChild(newColumnDiv);
+        }
+
+
+
     </script>
 {% endblock %}
 </body>

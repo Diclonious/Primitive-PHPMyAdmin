@@ -1,11 +1,18 @@
-
 <html lang="en">
 {% extends "base.html" %}
 <body>
 {% block content %}
     <div>
         <h1>Details for Table: {{ table.name }}</h1>
-<input type="hidden" name="database_id" value="{{ database.id }}">
+
+        <!-- Display error message if it exists -->
+        {% if error_message %}
+            <div style="color: red; font-weight: bold; margin-bottom: 10px;">
+                {{ error_message }}
+            </div>
+        {% endif %}
+
+        <input type="hidden" name="database_id" value="{{ database.id }}">
         <input type="hidden" name="table_id" value="{{ table.id }}">
 
         <table class="table table-striped">
@@ -14,7 +21,6 @@
                     <th>Column Name</th>
                     <th>Data Type</th>
                     <th>Is Nullable</th>
-
                 </tr>
             </thead>
             <tbody>
@@ -22,11 +28,11 @@
                     <tr>
                         <td>{{ column.name }}
                         {% if column.is_primary_key %}
-                                <i class="fas fa-key" title="Primary Key"></i>
-                            {% endif %}</td>
+                            <i class="fas fa-key" title="Primary Key"></i>
+                        {% endif %}</td>
                         <td>{{ column.data_type }}</td>
-                        <td>{{ 'Yes' if column.is_nullable else 'No' }}</td>
-<td>
+                        <td>{{ column.is_nullable }}</td>
+                        <td>
                             <form action="/tables/{{ table.id }}/columns/{{ column.id }}/drop" method="post" style="display:inline;">
                                 <input type="hidden" name="database_id" value="{{ database.id }}">
                                 <input type="hidden" name="table_id" value="{{ table.id }}">
