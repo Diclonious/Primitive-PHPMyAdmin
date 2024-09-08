@@ -116,7 +116,6 @@ async def delete_database(request: Request, database_id: int, db: Session = Depe
 # tables functions
 @app.get("/tables/{database_id}/{table_id}/export", response_class=StreamingResponse)
 async def export_table_to_csv(database_id: int, table_id: int, db: Session = Depends(get_db)):
-
     db_table = db.query(models.Table).filter(
         models.Table.id == table_id,
         models.Table.database_id == database_id
@@ -125,28 +124,21 @@ async def export_table_to_csv(database_id: int, table_id: int, db: Session = Dep
     if not db_table:
         raise HTTPException(status_code=404, detail="Table not found")
 
-
     db_columns = db.query(models.TableColumn).filter(models.TableColumn.table_id == table_id).all()
 
-
     db_rows = db.query(models.Row).filter(models.Row.table_id == table_id).all()
-
 
     csv_buffer = StringIO()
     csv_writer = csv.writer(csv_buffer)
 
-
     column_names = [col.name for col in db_columns]
     csv_writer.writerow(column_names)
-
 
     for row in db_rows:
         row_data = json.loads(row.data) if isinstance(row.data, str) else row.data
         csv_writer.writerow([row_data.get(col.name, "") for col in db_columns])
 
-
     csv_buffer.seek(0)
-
 
     response = StreamingResponse(
         iter([csv_buffer.getvalue()]),
@@ -159,7 +151,6 @@ async def export_table_to_csv(database_id: int, table_id: int, db: Session = Dep
 
 @app.get("/tables/create/{database_id}", response_class=HTMLResponse)  # create get
 async def create_table_form(request: Request, database_id: int, db: Session = Depends(get_db)):
-
     db_database = db.query(models.Database).filter(models.Database.id == database_id).first()
     return templates.TemplateResponse("create_table.html", {
         "request": request,
@@ -194,7 +185,6 @@ async def create_table(
                             detail="Column names, column types, and is_nullable lists must have the same length.")
 
     for i, (col_name, col_type, nullable) in enumerate(zip(column_names, column_types, is_nullable)):
-
         column_type = {
             "INTEGER": Integer,
             "VARCHAR": SaString(255),
@@ -308,13 +298,11 @@ async def insert_into(
     if not db_database or not db_table:
         raise HTTPException(status_code=404, detail="Database or Table not found")
 
-
     existing_rows = db.query(models.Row).filter(models.Row.table_id == table_id).all()
 
     # Extract form data
     form_data = await request.form()
     rows_data = {}
-
 
     for key, value in form_data.items():
         if key.startswith("columns["):
@@ -343,7 +331,6 @@ async def insert_into(
                                     status_code=303
                                 )
 
-
     for row_data in rows_data.values():
         new_row = models.Row(table_id=table_id, data=row_data)  # Pass JSON string
         db.add(new_row)
@@ -362,7 +349,6 @@ def drop_column(
         database_id: int = Form(...),  # Form parameter
         db: Session = Depends(get_db)
 ):
-
     db_database = db.query(models.Database).filter(models.Database.id == table_id).first()
 
     db_column = db.query(models.TableColumn).filter(models.TableColumn.id == column_id).first()
@@ -426,12 +412,10 @@ async def drop_value(
     form = await request.form()
     database_id = int(form.get('database_id'))
 
-
     row = db.query(models.Row).filter(models.Row.id == row_id).first()
 
     if not row:
         raise HTTPException(status_code=404, detail="Row not found")
-
 
     db.delete(row)
     db.commit()
@@ -488,7 +472,6 @@ async def update_row(
     form = await request.form()
     database_id = int(form.get('database_id'))
 
-
     table = db.query(models.Table).filter(models.Table.id == table_id).first()
     row = db.query(models.Row).filter(models.Row.id == row_id).first()
     if not table or not row:
@@ -518,7 +501,6 @@ async def update_row(
                                 url=f"/tables/{database_id}/{table_id}/rows/{row_id}/edit?flag=fail&existing_value={value}&column={column.name}",
                                 status_code=303
                             )
-
 
     row.data = row_data
     db.commit()
@@ -555,7 +537,6 @@ async def post_sql(request: Request, database_id: int, sql_query: str = Form(...
             if not table:
                 raise ValueError(f"Table '{table_name}' not found.")
             db.query(models.Row).filter(models.Row.table_id == table.id).delete()
-
 
             db.query(models.TableColumn).filter(models.TableColumn.table_id == table.id).delete()
             db.query(models.Table).filter(models.Table.name == table_name).delete()
@@ -632,6 +613,7 @@ async def post_sql(request: Request, database_id: int, sql_query: str = Form(...
                 results = [dict(zip(columns, row)) for row in rows]
             else:
                 results = [{"message": "Query executed successfully, but no rows returned."}]
+        print(results)
 
         return templates.TemplateResponse("sql.html", {
             "results": results,

@@ -14,6 +14,7 @@
                 <button class="btn btn-success" type="submit">Execute Query</button>
             </form>
 
+
             {% if error_message %}
                 <div class="error">
                     <h2>Error:</h2>
@@ -22,62 +23,71 @@
             {% endif %}
 
             {% if results %}
-                <div class="results">
-                    <h2>Results:</h2>
-                    {% if results[0].message %}
-                        <h3>{{ results[0].message }}</h3>
-                    {% endif %}
-                    {% if results.Table %}
-                        <h3>Table: {{ results.Table }}</h3>
-                    {% endif %}
-                    {% if results.Columns %}
-                        <h3>Columns:</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Data Type</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for column in results.Columns %}
-                                    <tr>
-                                        <td>{{ column.id }}</td>
-                                        <td>{{ column.name }}</td>
-                                        <td>{{ column.data_type }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% endif %}
-                    {% if results.Rows %}
-                        <h3>Rows:</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    {% for column_name in results.Rows[0].keys() %}
-                                        <th>{{ column_name }}</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for row in results.Rows %}
-                                    <tr>
-                                        {% for column in row.values() %}
-                                            <td>{{ column }}</td>
-                                        {% endfor %}
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% endif %}
-                </div>
-            {% else %}
-                {% if not error_message %}
-                    <p>No results found.</p>
-                {% endif %}
+    {% if results is mapping %}
+
+        {% if results.message %}
+            <h3>{{ results.message }}</h3>
+        {% endif %}
+        {% if results.Table %}
+            <h3>Table: {{ results.Table }}</h3>
+
+
+            {% if results.Columns %}
+                <h3>Columns:</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Data Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for column in results.Columns %}
+                            <tr>
+                                <td>{{ column.id }}</td>
+                                <td>{{ column.name }}</td>
+                                <td>{{ column.data_type }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
+
+
+            {% if results.Rows %}
+                <h3>Rows:</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            {% for column_name in results.Rows[0].keys() %}
+                                <th>{{ column_name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in results.Rows %}
+                            <tr>
+                                {% for column in row.values() %}
+                                    <td>{{ column }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        {% endif %}
+    {% elif results is sequence %}
+
+        {% for result in results %}
+            <h3>{{ result.Database or result.message }}</h3>
+        {% endfor %}
+    {% endif %}
+{% else %}
+    <p>No results found.</p>
+{% endif %}
+
+
         </div>
     </div>
 {% endblock %}
