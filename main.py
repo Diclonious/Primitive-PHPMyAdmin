@@ -237,9 +237,22 @@ async def insert_into(request: Request, database_id: int, table_id: int, db: Ses
     db_table = db.query(models.Table).filter(models.Table.id == table_id,
                                              models.Table.database_id == database_id).first()
     columns = db.query(models.TableColumn).filter(models.TableColumn.table_id == table_id).all()
-
+    flag = request.query_params.get("flag")
+    existing_value = request.query_params.get("existing_value")
+    new_value = request.query_params.get("new_value")
+    column = request.query_params.get("column")
     column_list = [{'id': col.id, 'name': col.name, 'data_type': col.data_type.value, 'is_nullable': col.is_nullable}
                    for col in columns]
+    if flag == 'fail':
+        error_message = f"Duplicate Primary Key detected in column '{column}': Existing value = {existing_value}, New value = {new_value}"
+        return templates.TemplateResponse("insert_form.html", {
+            "request": request,
+            "database": db_database,
+            "columns": column_list,
+            "table": db_table,
+            "error_message": error_message,
+        })
+
     return templates.TemplateResponse("insert_form.html", {
         "request": request,
         "database": db_database,
@@ -248,6 +261,7 @@ async def insert_into(request: Request, database_id: int, table_id: int, db: Ses
     })
 
 
+# add rows
 @app.post("/tables/{database_id}/{table_id}/insert")
 async def insert_into(
         request: Request,
@@ -261,6 +275,7 @@ async def insert_into(
 
     if not db_database or not db_table:
         raise HTTPException(status_code=404, detail="Database or Table not found")
+    existing_rows = db.query(models.Row).filter(models.Row.table_id == table_id).all()
 
     column_data = await request.form()
     rows_data = []
@@ -271,7 +286,19 @@ async def insert_into(
             column_id = key.split('-')[-1]  # Extract column id from form input name
             column = db.query(models.TableColumn).filter(models.TableColumn.id == column_id).first()
             if column:
-                current_row_data[column.name] = value
+                if column.is_primary_key:
+                    current_row_data[column.name] = value
+                    for row in existing_rows:
+                        existing_row_data = row.data
+                        if column.name in existing_row_data:
+                            if existing_row_data[column.name] == value:
+                                return RedirectResponse(
+                                    url=f"/tables/{database_id}/{table_id}/insert?flag=fail&existing_value={existing_row_data[column.name]}&new_value={value}&column={column.name}",
+                                    status_code=303)
+                            # ova pravi get request
+                else:
+                    current_row_data[column.name] = value
+
         elif key == "submit":  # Detect form submission
             if current_row_data:  # If there's any row data collected, add it to rows_data
                 rows_data.append(current_row_data)
@@ -290,6 +317,7 @@ async def insert_into(
 
     # Redirect to a success page or back to the table view
     return RedirectResponse(url=f"/tables/{database_id}/{table_id}/viewdata", status_code=303)
+
 
 # column drop
 @app.post("/tables/{table_id}/columns/{column_id}/drop")  # form se koristi samo koga parametarot ne e vo urlto
@@ -354,6 +382,7 @@ async def read_table(request: Request, database_id: int, table_id: int, db: Sess
     })
 
 
+# drop rows
 @app.post("/tables/{table_id}/rows/{row_id}/drop")
 async def drop_value(
         request: Request,
@@ -377,6 +406,7 @@ async def drop_value(
     return RedirectResponse(url=f"/tables/{database_id}/{table_id}/viewdata", status_code=303)
 
 
+# edit rows
 @app.get("/tables/{database_id}/{table_id}/rows/{row_id}/edit", response_class=HTMLResponse)
 async def edit_row_form(request: Request, database_id: int, table_id: int, row_id: int, db: Session = Depends(get_db)):
     table = db.query(models.Table).filter(models.Table.id == table_id, models.Table.database_id == database_id).first()
