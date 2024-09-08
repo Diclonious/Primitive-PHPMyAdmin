@@ -12,74 +12,101 @@
             </div>
         {% endif %}
 
-    <div id="row-form-groups">
-        {% if columns %}
-            {% for column in columns %}
-                <div class="row-form-group">
+        <div id="row-form-groups">
+            <div class="row-form-group">
+                {% for column in columns %}
                     <label for="column-{{ column.id }}">Column {{ column.name }}:</label>
                     {% set required_attr = 'required' if not column.is_nullable else '' %}
-                    {% set required_attr_name = 'Not Nullable' if not column.is_nullable else 'Nullable' %}
                     {% if column.data_type == 'INTEGER' or column.data_type == 'FLOAT' %}
-                        <input type="number" id="column-{{ column.id }}" name="column-{{ column.id }}[]" step="any" {{ required_attr }}>
+                        <input type="number" id="column-{{ column.id }}-0" name="columns[0][{{ column.id }}]" step="any" {{ required_attr }}>
                     {% elif column.data_type == 'BOOLEAN' %}
-                        <select id="column-{{ column.id }}" name="column-{{ column.id }}[]" {{ required_attr }}>
+                        <select id="column-{{ column.id }}-0" name="columns[0][{{ column.id }}]" {{ required_attr }}>
                             <option value="true">True</option>
                             <option value="false">False</option>
                         </select>
                     {% elif column.data_type == 'DATE' %}
-                        <input type="date" id="column-{{ column.id }}" name="column-{{ column.id }}[]" {{ required_attr }}>
+                        <input type="date" id="column-{{ column.id }}-0" name="columns[0][{{ column.id }}]" {{ required_attr }}>
                     {% elif column.data_type == 'VARCHAR' or column.data_type == 'TEXT' %}
-                        <input type="text" id="column-{{ column.id }}" name="column-{{ column.id }}[]" {{ required_attr }}>
+                        <input type="text" id="column-{{ column.id }}-0" name="columns[0][{{ column.id }}]" {{ required_attr }}>
                     {% else %}
-                        <input type="text" id="column-{{ column.id }}" name="column-{{ column.id }}[]" {{ required_attr }}>
+                        <input type="text" id="column-{{ column.id }}-0" name="columns[0][{{ column.id }}]" {{ required_attr }}>
                     {% endif %}
-                    <span>{{ required_attr_name }}</span>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No columns available to insert data.</p>
-        {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Buttons for adding new rows and submitting form -->
+        <div id="button-group" style="margin-top: 20px;">
+            <button type="button" class="btn btn-secondary" id="add-row-button">Insert Another Row</button>
+            <button type="submit" class="btn btn-success">Submit Rows</button>
+        </div>
+        </form>
     </div>
 
-    <!-- Buttons for adding new row and submitting form -->
-    <div id="button-group" style="margin-top: 20px;">
-        <button type="button" class="btn btn-secondary" id="add-row-button">Insert Another Row</button>
-        <button type="submit" class="btn btn-success">Submit Rows</button>
-    </div>
-</form>
-    </div>
+   <script>
+    let rowIndex = 0;  // Start row index from 0
 
-    <script>
-        document.getElementById('add-row-button').addEventListener('click', function() {
+document.getElementById('add-row-button').addEventListener('click', function () {
+    // Select all elements with the class 'row-form-group'
+    var formGroups = document.querySelectorAll('.row-form-group');
+
     // Clone the first row-form-group
-    var originalFormGroup = document.querySelector('.row-form-group');
-    var newFormGroup = originalFormGroup.cloneNode(true);
+    if (formGroups.length > 0) {
+        var originalFormGroup = formGroups[0]; // Use the first element as the template
 
-    // Reset input values in the cloned form
-    var inputs = newFormGroup.querySelectorAll('input, select');
-    inputs.forEach(function(input) {
-        if (input.type === 'select-one') {
-            input.selectedIndex = 0; // Reset select to the first option
-        } else {
-            input.value = ''; // Clear input value
-        }
-    });
+        // Clone the form group
+        var newFormGroup = originalFormGroup.cloneNode(true);
 
-    // Append the new row form group to the form, before the button group
-    document.getElementById('row-form-groups').appendChild(newFormGroup);
+        // Increment the rowIndex for the new row
+        rowIndex++;
 
-    // Add event listener for the new remove button
-    newFormGroup.querySelector('.remove-row-button').addEventListener('click', function() {
-        newFormGroup.remove(); // Remove the row form group
+        // Update the ID and name attributes for input fields and label 'for' attributes
+        var inputs = newFormGroup.querySelectorAll('input, select');
+        var labels = newFormGroup.querySelectorAll('label');
+
+        inputs.forEach(function (input, index) {
+            // Create a unique and valid ID by appending the rowIndex to the original ID
+            var newId = input.id.replace(/\d+/, '') + rowIndex;  // Strip existing numbers and append rowIndex
+            input.id = newId;  // Update the input ID
+            input.name = input.name.replace(/\[\d+\]/, `[${rowIndex}]`);  // Update name to include rowIndex
+        });
+
+        labels.forEach(function (label, index) {
+            // Update the 'for' attribute to match the new input ID
+            var associatedInput = inputs[index];  // Get the corresponding input
+            label.setAttribute('for', associatedInput.id);  // Set the 'for' attribute
+        });
+
+        // Reset input values in the cloned form
+        inputs.forEach(function (input) {
+            if (input.type === 'select-one') {
+                input.selectedIndex = 0;  // Reset select to the first option
+            } else {
+                input.value = '';  // Clear input value
+            }
+        });
+
+        // Append the new row form group to the form, before the button group
+        document.getElementById('row-form-groups').appendChild(newFormGroup);
+
+        // Add event listener for the new remove button, if needed
+        newFormGroup.querySelector('.remove-row-button').addEventListener('click', function () {
+            newFormGroup.remove();  // Remove the row form group
+        });
+    }
+});
+
+// Attach event listener to the initial remove button(s)
+document.querySelectorAll('.remove-row-button').forEach(function (button) {
+    button.addEventListener('click', function () {
+        this.closest('.row-form-group').remove();  // Remove the row form group
     });
 });
 
-// Attach event listener to the initial remove button
-document.querySelector('.remove-row-button').addEventListener('click', function() {
-    this.closest('.row-form-group').remove(); // Remove the row form group
-});
 
-    </script>
+</script>
+
 {% endblock %}
 </body>
+
 </html>

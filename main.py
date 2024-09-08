@@ -1,10 +1,12 @@
 from fastapi import FastAPI, HTTPException, Depends, Form
-from sqlalchemy.exc import SQLAlchemyError
+
 from sqlalchemy.orm import Session, sessionmaker
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
-from typing import List
+import csv
+from io import StringIO
+from fastapi.responses import StreamingResponse
 
 from starlette.responses import JSONResponse
 
@@ -119,7 +121,47 @@ async def delete_database(request: Request, database_id: int, db: Session = Depe
 
 
 # tables functions
+@app.get("/tables/{database_id}/{table_id}/export", response_class=StreamingResponse)
+async def export_table_to_csv(database_id: int, table_id: int, db: Session = Depends(get_db)):
+    # Fetch the database and table
+    db_table = db.query(models.Table).filter(
+        models.Table.id == table_id,
+        models.Table.database_id == database_id
+    ).first()
 
+    if not db_table:
+        raise HTTPException(status_code=404, detail="Table not found")
+
+    # Fetch the columns of the table
+    db_columns = db.query(models.TableColumn).filter(models.TableColumn.table_id == table_id).all()
+
+    # Fetch the rows of the table
+    db_rows = db.query(models.Row).filter(models.Row.table_id == table_id).all()
+
+    # Create a CSV string buffer
+    csv_buffer = StringIO()
+    csv_writer = csv.writer(csv_buffer)
+
+    # Write the headers (column names)
+    column_names = [col.name for col in db_columns]
+    csv_writer.writerow(column_names)
+
+    # Write the rows of the table
+    for row in db_rows:
+        row_data = json.loads(row.data) if isinstance(row.data, str) else row.data
+        csv_writer.writerow([row_data.get(col.name, "") for col in db_columns])
+
+    # Reset buffer position to the start
+    csv_buffer.seek(0)
+
+    # Create a StreamingResponse to return the CSV file
+    response = StreamingResponse(
+        iter([csv_buffer.getvalue()]),
+        media_type="text/csv"
+    )
+
+    response.headers["Content-Disposition"] = f"attachment; filename={db_table.name}.csv"
+    return response
 
 @app.get("/tables/create/{database_id}", response_class=HTMLResponse)  # create get
 async def create_table_form(request: Request, database_id: int, db: Session = Depends(get_db)):
@@ -239,12 +281,12 @@ async def insert_into(request: Request, database_id: int, table_id: int, db: Ses
     columns = db.query(models.TableColumn).filter(models.TableColumn.table_id == table_id).all()
     flag = request.query_params.get("flag")
     existing_value = request.query_params.get("existing_value")
-    new_value = request.query_params.get("new_value")
+
     column = request.query_params.get("column")
     column_list = [{'id': col.id, 'name': col.name, 'data_type': col.data_type.value, 'is_nullable': col.is_nullable}
                    for col in columns]
     if flag == 'fail':
-        error_message = f"Duplicate Primary Key detected in column '{column}': Existing value = {existing_value}, New value = {new_value}"
+        error_message = f"Duplicate Primary Key detected in column '{column}': Existing value = {existing_value}"
         return templates.TemplateResponse("insert_form.html", {
             "request": request,
             "database": db_database,
@@ -275,47 +317,49 @@ async def insert_into(
 
     if not db_database or not db_table:
         raise HTTPException(status_code=404, detail="Database or Table not found")
+
+    # Query existing rows for duplicate checking
     existing_rows = db.query(models.Row).filter(models.Row.table_id == table_id).all()
 
-    column_data = await request.form()
-    rows_data = []
-    current_row_data = {}
+    # Extract form data
+    form_data = await request.form()
+    rows_data = {}
 
-    for key, value in column_data.items():
-        if key.startswith("column-"):
-            column_id = key.split('-')[-1]  # Extract column id from form input name
-            column = db.query(models.TableColumn).filter(models.TableColumn.id == column_id).first()
-            if column:
-                if column.is_primary_key:
-                    current_row_data[column.name] = value
-                    for row in existing_rows:
-                        existing_row_data = row.data
-                        if column.name in existing_row_data:
-                            if existing_row_data[column.name] == value:
+    # Process the form data to get all rows
+    for key, value in form_data.items():
+        if key.startswith("columns["):
+            # Extract row index and column ID using regex
+            import re
+            match = re.match(r'columns\[(\d+)]\[(\d+)]', key)
+            if match:
+                row_index, column_id = match.groups()
+                row_index = int(row_index)  # Convert row index to an integer
+                column_id = int(column_id)  # Convert column ID to an integer
+
+                if row_index not in rows_data:
+                    rows_data[row_index] = {}
+
+                column = db.query(models.TableColumn).filter(models.TableColumn.id == column_id).first()
+                if column:
+                    rows_data[row_index][column.name] = value
+
+                    if column.is_primary_key:
+                        # Check for duplicate primary keys
+                        for row in existing_rows:
+                            existing_row_data = row.data
+                            if column.name in existing_row_data and existing_row_data[column.name] == value:
                                 return RedirectResponse(
-                                    url=f"/tables/{database_id}/{table_id}/insert?flag=fail&existing_value={existing_row_data[column.name]}&new_value={value}&column={column.name}",
-                                    status_code=303)
-                            # ova pravi get request
-                else:
-                    current_row_data[column.name] = value
-
-        elif key == "submit":  # Detect form submission
-            if current_row_data:  # If there's any row data collected, add it to rows_data
-                rows_data.append(current_row_data)
-                current_row_data = {}  # Reset for next row
-
-    # Add the last row if form did not end with a submit button
-    if current_row_data:
-        rows_data.append(current_row_data)
+                                    url=f"/tables/{database_id}/{table_id}/insert?flag=fail&existing_value={value}&column={column.name}",
+                                    status_code=303
+                                )
 
     # Insert all rows into the database
-    for row_data in rows_data:
+    for row_data in rows_data.values():
         new_row = models.Row(table_id=table_id, data=row_data)  # Pass JSON string
         db.add(new_row)
 
     db.commit()
 
-    # Redirect to a success page or back to the table view
     return RedirectResponse(url=f"/tables/{database_id}/{table_id}/viewdata", status_code=303)
 
 
