@@ -14,17 +14,17 @@
             padding: 0;
         }
 
-        /* Container for background image and overlay */
+
         .background-image {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('/static/images/logo.png'); /* Path to your background image */
+            background-image: url('/static/images/logo.png');
             background-size: cover;
             background-position: center;
-            z-index: -1; /* Place behind the content */
+            z-index: -1;
         }
 
         /* Semi-transparent overlay */
@@ -34,8 +34,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Adjust transparency (0.5 = 50%) */
-            z-index: -1; /* Ensure it is behind the content but above the background image */
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -1;
         }
 
         .navbar {
@@ -114,13 +114,13 @@
         .main-content {
             flex-grow: 1;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8); /* Optional: Add a semi-transparent white background for contrast */
+            background-color: rgba(255, 255, 255, 0.8);
             margin-left: 250px;
         }
     </style>
 </head>
 <body>
-    <!-- Background image and overlay -->
+
     <div class="background-image"></div>
 
     </div>
@@ -129,8 +129,6 @@
         <img src="/static/images/logo.png" alt="Logo">
         <a href="/">Home</a>
         <a href="/databases/all">Databases</a>
-
-        <!-- Add more links as needed -->
     </div>
 <div>
         {% block content %}

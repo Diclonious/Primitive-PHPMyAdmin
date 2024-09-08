@@ -1,1 +1,2 @@
-# ProjectInssok
+Primitive phpMyAdmin
+Анабела Бочварова 193063

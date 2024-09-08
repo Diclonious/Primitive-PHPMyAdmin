@@ -7,7 +7,7 @@ import os
 
 load_dotenv()
 
-# Get the database URL from environment variables
+
 DB_URL = os.getenv("DB_URL")
 
 # Create the database engine

@@ -22,14 +22,14 @@ def create_database(name: str):
     # Create a new session
     db = SessionLocal()
     try:
-        # Create an instance of the Database model
+
         new_database = models.Database(name=name)
 
-        # Add and commit the instance to the database
+
         db.add(new_database)
         db.commit()
 
-        # Refresh the instance to get the assigned ID
+
         db.refresh(new_database)
         print(f"Database created with ID: {new_database.id}")
 

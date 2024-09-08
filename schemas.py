@@ -21,7 +21,7 @@ class RowCreate(BaseModel):
 class Row(BaseModel):
     id: int
     table_id: int
-    values: Dict[str, str]  # This should map column names to their corresponding values
+    values: Dict[str, str]
 
     class Config:
         from_attributes = True
